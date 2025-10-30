@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic Games - Jeux Gratuits</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+        }
+
+        .voir-plus {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .voir-plus:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .timer-section {
+            background: transparent;
+            border: none;
+            padding: 25px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .timer-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #a0a0a0;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown-value {
+            background: none;
+            padding: 15px 25px;
+            border-radius: 0;
+            min-width: 80px;
+            color: #fff;
+        }
+
+        .countdown-label {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-top: 8px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: #2a2a2a;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+        }
+
+        .game-content {
+            padding: 20px;
+        }
+
+        .game-status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .status-gratuit {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .status-bientot {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .game-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .game-dates {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: #fca5a5;
+        }
+
+        .links a {
+            text-decoration: none;
+            color: #6366f1;
+            margin-right: 10px;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #a0a0a0;
+            font-size: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="https://store.epicgames.com/free-games" target="_blank" class="voir-plus">Voir plus</a>
+        </header>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            Chargement des jeux...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div class="games-grid" id="games-grid"></div>
+
+        <div class="timer-section" id="timer-section" style="display: none;">
+            <div class="timer-title">Prochain changement de jeux</div>
+            <div class="countdown" id="countdown"></div>
+        </div>
+
+        <div class="footer">
+            Ce site web n'est pas affilié à Epic Games.
+        </div>
+    </div>
+
+    <script>
+        const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        let timerInterval;
+
+        async function fetchGames() {
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const grid = document.getElementById('games-grid');
+            const timerSection = document.getElementById('timer-section');
+
+            loading.style.display = 'block';
+            errorDiv.style.display = 'none';
+            grid.innerHTML = '';
+            timerSection.style.display = 'none';
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            try {
+                const params = new URLSearchParams({
+                    'locale': 'fr',
+                    'country': 'FR',
+                    'allowCountries': 'FR'
+                });
+
+                const originalUrl = `https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?${params.toString()}`;
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`;
+
+                const response = await fetch(proxyUrl, { method: 'GET' });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                let allGames = [];
+
+                if (data.data && data.data.Catalog && data.data.Catalog.searchStore) {
+                    const games = data.data.Catalog.searchStore.elements;
+
+                    const nowUTC = new Date();
+                    const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+
+                    for (const game of games) {
+                        if (!game.promotions) continue;
+
+                        const promotions = game.promotions;
+                        let offers, upcoming = false;
+
+                        if (promotions.promotionalOffers && promotions.promotionalOffers.length > 0) {
+                            offers = promotions.promotionalOffers;
+                        } else if (promotions.upcomingPromotionalOffers && promotions.upcomingPromotionalOffers.length > 0) {
+                            offers = promotions.upcomingPromotionalOffers;
+                            upcoming = true;
+                        } else {
+                            continue;
+                        }
+
+                        if (!offers[0]?.promotionalOffers?.length) continue;
+
+                        const offer = offers[0].promotionalOffers[0];
+                        const startDateUTC = new Date(offer.startDate);
+                        const endDateUTC = new Date(offer.endDate);
+
+                        const isCurrent = !upcoming && startDateUTC <= nowUTC && nowUTC < endDateUTC;
+                        const isUpcomingWithinWeek = upcoming && startDateUTC > nowUTC && (startDateUTC.getTime() - nowUTC.getTime() <= oneWeekMs);
+
+                        if (!isCurrent && !isUpcomingWithinWeek) continue;
+
+                        let availability = isCurrent ? `Gratuit jusqu'au ${formatShortDate(endDateUTC)}` : `Gratuit ${formatShortDate(startDateUTC)} - ${formatShortDate(endDateUTC)}`;
+
+                        const title = game.title;
+
+                        let isAddon = false;
+                        if (game.categories) {
+                            for (const category of game.categories) {
+                                if (category.path === 'addons' || title.includes('DLC') || title.includes('Add-on')) {
+                                    isAddon = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isAddon) continue;
+
+                        let imageUrl = null;
+                        if (game.keyImages?.length > 0) {
+                            for (const img of game.keyImages) {
+                                if (img.type === 'OfferImageWide' || img.type === 'DieselStoreFrontWide') {
+                                    imageUrl = img.url;
+                                    break;
+                                }
+                            }
+                            if (!imageUrl) imageUrl = game.keyImages[0].url;
+                        }
+
+                        let gameSlug = game.urlSlug || title.toLowerCase().replace(/\s+/g, '-');
+                        let namespace = null;
+                        let offerId = null;
+                        if (game.catalogNs?.mappings?.length > 0) {
+                            namespace = game.catalogNs.mappings[0].pageNamespace;
+                            gameSlug = game.catalogNs.mappings[0].pageSlug;
+                        }
+                        // Extraire l'offerId depuis le slug si possible (ex: bendy-and-the-ink-machine-60cf5a)
+                        const slugMatch = gameSlug.match(/-([a-f0-9]{6,})$/i);
+                        if (slugMatch) {
+                            offerId = slugMatch[1];
+                        }
+
+                        const gameUrl = `https://store.epicgames.com/fr/p/${gameSlug}`;
+
+                        // URL direct du launcher Epic (sans redirection externe)
+                        let launcherUrl = `com.epicgames.launcher://store/p/${gameSlug}`;
+                        if (namespace && offerId) {
+                            launcherUrl = `com.epicgames.launcher://store/offers/${gameSlug}?namespace=${namespace}&offerId=${offerId}`;
+                        } else if (offerId) {
+                            launcherUrl = `com.epicgames.launcher://store/p/${gameSlug}`;
+                        }
+
+                        let originalPrice = null;
+                        if (game.price?.totalPrice && game.price.totalPrice.discountPrice === 0 && game.price.totalPrice.originalPrice > 0) {
+                            const currency = game.price.totalPrice.currencyCode || 'EUR';
+                            originalPrice = `${(game.price.totalPrice.originalPrice / 100).toFixed(2)} ${currency}`;
+                        }
+
+                        const gameInfo = {
+                            title,
+                            image: imageUrl,
+                            availability,
+                            url: gameUrl,
+                            launcher_url: launcherUrl,
+                            isCurrent,
+                            original_price: originalPrice,
+                            startDate: startDateUTC,
+                            endDate: endDateUTC
+                        };
+
+                        if (isCurrent && originalPrice === null) continue;
+
+                        allGames.push(gameInfo);
+                    }
+                }
+
+                allGames.sort((a, b) => {
+                    if (a.isCurrent !== b.isCurrent) return a.isCurrent ? -1 : 1;
+                    return a.startDate.getTime() - b.startDate.getTime();
+                });
+
+                if (allGames.length > 0) {
+                    allGames.forEach(game => grid.appendChild(createGameCard(game)));
+                    const currentGames = allGames.filter(g => g.isCurrent);
+                    const upcomingGames = allGames.filter(g => !g.isCurrent);
+                    let nextChangeTime = null;
+                    if (currentGames.length > 0) {
+                        nextChangeTime = Math.min(...currentGames.map(g => g.endDate.getTime()));
+                    } else if (upcomingGames.length > 0) {
+                        nextChangeTime = Math.min(...upcomingGames.map(g => g.startDate.getTime()));
+                    }
+                    if (nextChangeTime) {
+                        timerSection.style.display = 'block';
+                        updateCountdown(nextChangeTime);
+                        timerInterval = setInterval(() => updateCountdown(nextChangeTime), 1000);
+                    }
+                } else {
+                    grid.innerHTML = '<p style="text-align: center; color: #a0a0a0; grid-column: 1/-1;">Aucun jeu gratuit disponible pour le moment.</p>';
+                }
+
+            } catch (error) {
+                errorDiv.textContent = `Erreur: ${error.message}`;
+                errorDiv.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function createGameCard(game) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.onclick = (e) => {
+                if (e.target.tagName !== 'A') {
+                    window.open(game.url, '_blank');
+                }
+            };
+
+            const img = document.createElement('img');
+            img.src = game.image || '';
+            img.className = 'game-image';
+            img.alt = game.title;
+            card.appendChild(img);
+
+            const content = document.createElement('div');
+            content.className = 'game-content';
+
+            const status = document.createElement('div');
+            status.className = `game-status ${game.isCurrent ? 'status-gratuit' : 'status-bientot'}`;
+            status.textContent = game.isCurrent ? 'GRATUIT' : 'BIENTÔT DISPONIBLE';
+            content.appendChild(status);
+
+            const title = document.createElement('h3');
+            title.className = 'game-title';
+            title.textContent = game.title;
+            content.appendChild(title);
+
+            const dates = document.createElement('div');
+            dates.className = 'game-dates';
+            dates.textContent = game.availability;
+            content.appendChild(dates);
+
+            if (game.isCurrent && game.original_price) {
+                const price = document.createElement('div');
+                price.innerHTML = `Prix normal: <s>${game.original_price}</s> | Prix actuel: GRATUIT`;
+                price.style.color = '#10b981';
+                price.style.marginTop = '10px';
+                content.appendChild(price);
+            }
+
+            const links = document.createElement('div');
+            links.className = 'links';
+            links.style.marginTop = '15px';
+            links.innerHTML = `<a href="${game.url}" target="_blank">Site Web</a><a href="${game.launcher_url}" target="_blank">Epic Launcher</a>`;
+            content.appendChild(links);
+
+            card.appendChild(content);
+
+            return card;
+        }
+
+        function formatShortDate(date) {
+            return date.toLocaleString('fr-FR', { 
+                timeZone: userTimeZone,
+                day: 'numeric', 
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function updateCountdown(nextTime) {
+            const now = new Date().getTime();
+            const diff = nextTime - now;
+            if (diff <= 0) {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                }
+                document.getElementById('timer-section').style.display = 'none';
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            const countdownEl = document.getElementById('countdown');
+            let html = '';
+            if (days > 0) {
+                html += `
+                    <div class="countdown-item">
+                        <div class="countdown-value">${days}</div>
+                        <div class="countdown-label">Jours</div>
+                    </div>
+                `;
+            }
+            html += `
+                <div class="countdown-item">
+                    <div class="countdown-value">${hours}</div>
+                    <div class="countdown-label">Heures</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-value">${minutes}</div>
+                    <div class="countdown-label">Minutes</div>
+                </div>
+            `;
+            if (days === 0) {
+                html += `
+                    <div class="countdown-item">
+                        <div class="countdown-value">${seconds}</div>
+                        <div class="countdown-label">Secondes</div>
+                    </div>
+                `;
+            }
+            countdownEl.innerHTML = html;
+        }
+
+        // Load on start
+        fetchGames();
+    </script>
+</body>
+</html>
