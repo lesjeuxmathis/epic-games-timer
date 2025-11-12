@@ -202,6 +202,42 @@
             font-size: 14px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        /* Styles pour la popup */
+        .ip-popup {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(42, 42, 42, 0.9);
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+            display: none;
+            z-index: 1000;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+        }
+
+        .ip-popup p {
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        .ip-popup button {
+            background: #6366f1;
+            border: none;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .ip-popup button:hover {
+            background: #4f46e5;
+        }
     </style>
 </head>
 <body>
@@ -227,6 +263,12 @@
         <div class="footer">
             Ce site web n'est pas affilié à Epic Games.
         </div>
+    </div>
+
+    <!-- Popup ajoutée -->
+    <div id="ip-popup" class="ip-popup">
+        <p>Ce site collecte votre IP mais ne la stocke pas.</p>
+        <button id="ok-button">OK</button>
     </div>
 
     <script>
@@ -514,6 +556,20 @@
 
         // Load on start
         fetchGames();
+
+        // Script pour la popup
+        document.addEventListener('DOMContentLoaded', () => {
+            const popup = document.getElementById('ip-popup');
+            if (popup) {
+                popup.style.display = 'block';
+                const okButton = document.getElementById('ok-button');
+                if (okButton) {
+                    okButton.addEventListener('click', () => {
+                        popup.style.display = 'none';
+                    });
+                }
+            }
+        });
     </script>
 </body>
 </html>
